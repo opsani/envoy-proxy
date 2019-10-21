@@ -1,0 +1,44 @@
+admin:
+  access_log_path: /dev/null
+  address:
+    socket_address:
+      protocol: TCP
+      address: 0.0.0.0
+      port_value: ${METRICS_PORT}
+static_resources:
+  listeners:
+  - address:
+      socket_address:
+        address: 0.0.0.0
+        port_value: ${LISTEN_PORT}
+    filter_chains:
+    - filters:
+      - name: envoy.http_connection_manager
+        config:
+          codec_type: auto
+          stat_prefix: ingress_http
+          route_config:
+            name: local_route
+            virtual_hosts:
+            - name: service
+              domains:
+              - "*"
+              routes:
+              - match:
+                  prefix: "/"
+                route:
+                  cluster: service
+          access_log:
+          - name: envoy.file_access_log
+            config:
+              path: "/dev/stdout"
+          http_filters:
+          - name: envoy.router
+            config: {}
+  clusters:
+  - name: service
+    connect_timeout: 10s
+    hosts:
+    - socket_address:
+        address: 127.0.0.1
+        port_value: ${SERVICE_PORT}
