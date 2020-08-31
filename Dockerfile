@@ -1,4 +1,4 @@
-FROM envoyproxy/envoy
+FROM envoyproxy/envoy:v1.14-latest
 
 ENV LISTEN_PORT=8080  \
     SERVICE_PORT=80   \
