@@ -1,7 +1,13 @@
 FROM envoyproxy/envoy:v1.14-latest
 
-ENV LISTEN_PORT=8080  \
-    SERVICE_PORT=80   \
-    METRICS_PORT=9901
+RUN apt-get update && \
+    apt-get install gettext-base -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-ADD envoy.yaml /etc/envoy/
+COPY envoy.yaml.tmpl /tmpl/envoy.yaml.tmpl
+COPY entrypoint.sh /
+
+RUN chmod 500 /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
