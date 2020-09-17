@@ -45,6 +45,7 @@ static_resources:
   clusters:
   - name: opsani_proxied_container
     connect_timeout: 0.5s
+    type: LOGICAL_DNS
     # NOTE: It may be necessary to disable this if we are only supporting HTTPS 1.1 and not HTTP/2
     http2_protocol_options: {}
     load_assignment:
@@ -54,7 +55,7 @@ static_resources:
           - endpoint:
               address:
                 socket_address:
-                  address: 127.0.0.1
+                  address: ${OPSANI_ENVOY_PROXIED_CONTAINER_ADDR} # OPSANI_ENVOY_PROXIED_CONTAINER_NAME localhost #127.0.0.1
                   port_value: ${OPSANI_ENVOY_PROXIED_CONTAINER_PORT} # OPSANI_ENVOY_PROXIED_CONTAINER_PORT
     # TODO: We may only need to do this if we want to enable TLS enforcement
     # transport_socket:
