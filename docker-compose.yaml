@@ -7,5 +7,16 @@ services:
     - ./nginx/example.com.pem:/etc/nginx/example.com.pem
     - ./nginx/example.com-key.pem:/etc/nginx/example.com-key.pem
     ports:
-    - "8080:80"
-    - "8443:443"
+    - 8280:80
+    - 8643:443
+  envoy:
+    build: .
+    depends_on:
+      - nginx
+    ports:
+    - 8281:8281
+    - 9901:9901
+    environment:
+      OPSANI_ENVOY_PROXIED_CONTAINER_ADDR: nginx
+      OPSANI_ENVOY_PROXY_SERVICE_PORT: 8281
+      OPSANI_ENVOY_PROXIED_CONTAINER_PORT: 80 # NOTE: Must be the internal port!
