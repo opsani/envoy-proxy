@@ -10,4 +10,6 @@ COPY entrypoint.sh /
 
 RUN chmod 500 /entrypoint.sh
 
+STOPSIGNAL SIGTERM
 ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy.yaml"]
