@@ -93,6 +93,25 @@ static_resources:
   - name: opsani_proxied_container
     connect_timeout: 0.5s
     type: LOGICAL_DNS
+    transport_socket_matches:
+    - name: "Enable TLS"
+      match:
+        OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: true
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          # sni: remote.example.com # TODO: Becomes an env variable to match on SNI hostname
+      #     common_tls_context:
+      #       validation_context:
+      #         match_subject_alt_names:
+      #         - exact: "*.remote.example.com" # TODO: This needs to exactly match the hostname in the upstream SSL certificate
+      #         trusted_ca:
+      #           filename: /etc/ssl/certs/ca-certificates.crt
+    - name: "default"
+      match: {}
+      transport_socket:
+        name: envoy.transport_sockets.raw_buffer
     # NOTE: Uncomment if supporting HTTP/2 as well as HTTPS/1.1
     # If the upstream server does not support HTTP/2 then this will throw a 503
     # http2_protocol_options: {}
@@ -105,6 +124,11 @@ static_resources:
                 socket_address:
                   address: ${OPSANI_ENVOY_PROXIED_CONTAINER_ADDR} # OPSANI_ENVOY_PROXIED_CONTAINER_NAME localhost #127.0.0.1
                   port_value: ${OPSANI_ENVOY_PROXIED_CONTAINER_PORT} # OPSANI_ENVOY_PROXIED_CONTAINER_PORT
+            metadata:
+              filter_metadata:
+                envoy.transport_socket_match:
+                  # NOTE: This metadata is utilized in the "Enable TLS" stanza above
+                  OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: ${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED}
 #     # TODO: We may only need to do this if we want to enable TLS enforcement
 #     # TODO: Enabling these next four lines allows GET http -> talk to HTTPS
 #     transport_socket:
