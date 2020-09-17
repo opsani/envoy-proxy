@@ -40,7 +40,7 @@ static_resources:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.filters.http.health_check.v3.HealthCheck
               pass_through_mode: true
-          - name: envoy.grpc_web
+          - name: envoy.filters.http.grpc_web
           - name: envoy.filters.http.router
   clusters:
   - name: opsani_proxied_container
@@ -68,3 +68,16 @@ static_resources:
     #         - exact: "*.remote.example.com" # TODO: This needs to exactly match the hostname in the upstream SSL certificate
     #         trusted_ca:
     #           filename: /etc/ssl/certs/ca-certificates.crt
+
+# Avoid warnings about `global_downstream_max_connections`
+layered_runtime:
+  layers:
+    - name: static_layer_0
+      static_layer:
+        envoy:
+          resource_limits:
+            listener:
+              example_listener_name:
+                connection_limit: 10000
+        overload:
+          global_downstream_max_connections: 50000
