@@ -46,8 +46,9 @@ static_resources:
   - name: opsani_proxied_container
     connect_timeout: 0.5s
     type: LOGICAL_DNS
-    # NOTE: It may be necessary to disable this if we are only supporting HTTPS 1.1 and not HTTP/2
-    http2_protocol_options: {}
+    # NOTE: Uncomment if supporting HTTP/2 as well as HTTPS/1.1
+    # If the upstream server does not support HTTP/2 then this will throw a 503
+    # http2_protocol_options: {}
     load_assignment:
       cluster_name: opsani_proxied_container
       endpoints:
