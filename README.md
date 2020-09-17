@@ -18,7 +18,7 @@ template via the `entrypoint.sh` script run by the container.
 | **`OPSANI_ENVOY_PROXY_SERVICE_PORT`** | The container port receiving HTTP or HTTPS traffic from a Kubernetes Service. | `80` |
 | **`OPSANI_ENVOY_PROXIED_CONTAINER_PORT`** | The container port exposing the proxied HTTP or HTTPS application responsible for handling the requests. | `8080` |
 | `OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED` | Whether or not the `OPSANI_ENVOY_PROXIED_CONTAINER_PORT` is TLS encrypted (i.e. HTTPS or HTTP/2). Values are `true` or `false`. | `false` |
-| `OPSANI_ENVOY_METRICS_PORT| The HTTP port to expose Envoy admin metrics on. | `9901` |
+| `OPSANI_ENVOY_METRICS_PORT`| The HTTP port to expose Envoy admin metrics on. | `9901` |
 | `OPSANI_ENVOY_PROXIED_CONTAINER_ADDR` | The address that the proxied container is bound to. This is only changed during development and testing. | `127.0.0.1` |
 
 ### TLS Configuration
