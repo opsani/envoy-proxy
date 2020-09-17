@@ -129,12 +129,12 @@ static_resources:
                 envoy.transport_socket_match:
                   # NOTE: This metadata is utilized in the "Enable TLS" stanza above
                   OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: ${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED}
-          # TODO: remove me
-          - endpoint:
-              address:
-                socket_address:
-                  address: ${OPSANI_ENVOY_PROXIED_CONTAINER_ADDR} # OPSANI_ENVOY_PROXIED_CONTAINER_NAME localhost #127.0.0.1
-                  port_value: ${OPSANI_ENVOY_PROXIED_CONTAINER_PORT} # OPSANI_ENVOY_PROXIED_CONTAINER_PORT
+          # TODO: Figure out if this is required???
+          # - endpoint:
+          #     address:
+          #       socket_address:
+          #         address: ${OPSANI_ENVOY_PROXIED_CONTAINER_ADDR} # OPSANI_ENVOY_PROXIED_CONTAINER_NAME localhost #127.0.0.1
+          #         port_value: ${OPSANI_ENVOY_PROXIED_CONTAINER_PORT} # OPSANI_ENVOY_PROXIED_CONTAINER_PORT
 
 # Avoid warnings about `global_downstream_max_connections`
 layered_runtime:
