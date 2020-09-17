@@ -1,0 +1,24 @@
+version: '3'
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+    - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    - ./nginx/example.com.pem:/etc/nginx/example.com.pem
+    - ./nginx/example.com-key.pem:/etc/nginx/example.com-key.pem
+    ports:
+    - 8280:80
+    - 8643:443
+    # Envoy ports
+    - 8281:8281
+    - 9901:9901
+  envoy:
+    build: .
+    network_mode: service:nginx
+    depends_on:
+      - nginx
+    environment:
+      OPSANI_ENVOY_PROXY_SERVICE_PORT: 8281
+      # OPSANI_ENVOY_PROXIED_CONTAINER_PORT: 80 # NOTE: Must be the internal port!
+      OPSANI_ENVOY_PROXIED_CONTAINER_PORT: 443 # NOTE: Must be the internal port!
+      OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: "true"
