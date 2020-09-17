@@ -62,7 +62,7 @@ static_resources:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-          stat_prefix: ingress_http
+          stat_prefix: ingress_https
           route_config:
             virtual_hosts:
             - name: default
@@ -79,30 +79,61 @@ static_resources:
           - name: envoy.filters.http.router
   clusters:
   - name: opsani_proxied_container
+    type: LOGICAL_DNS
     connect_timeout: 0.5s
-    # type: STATIC # or LOGICAL_DNS
     transport_socket_matches:
-    - name: "Enable TLS"
+    # Selects first match -- start most specific
+    - name: "Enable upstream TLS with SNI validation"
+      match:
+        OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: true
+        OPSANI_ENVOY_PROXIED_CONTAINER_TLS_VALIDATION: true
+        OPSANI_ENVOY_PROXIED_CONTAINER_SNI_ENABLED: true
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          sni: ${OPSANI_ENVOY_PROXIED_CONTAINER_SNI_HOSTNAME}
+          common_tls_context:
+            validation_context:
+              match_subject_alt_names:
+              # NOTE: Must exactly match the alt name in the upstream SSL certificate
+              - exact: "${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ALT_NAME}"
+              trusted_ca:
+                filename: /etc/ssl/certs/ca-certificates.crt
+
+    # NOTE: TLS certificates are validated and the certificate subject alt name is matched
+    - name: "Enable upstream TLS with validation"
+      match:
+        OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: true
+        OPSANI_ENVOY_PROXIED_CONTAINER_TLS_VALIDATION: true
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+          common_tls_context:
+            validation_context:
+              match_subject_alt_names:
+              # NOTE: Must exactly match the alt name in the upstream SSL certificate
+              # if you have a wildcard must be "*.example.com"
+              - exact: "${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ALT_NAME}"
+              trusted_ca:
+                filename: /etc/ssl/certs/ca-certificates.crt
+
+    # NOTE: Upstream certificates are not verified (can be self signed, expired, etc)
+    - name: "Enable upstream TLS"
       match:
         OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: true
       transport_socket:
         name: envoy.transport_sockets.tls
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-          # sni: remote.example.com # TODO: Becomes an env variable to match on SNI hostname
-      #     common_tls_context:
-      #       validation_context:
-      #         match_subject_alt_names:
-      #         - exact: "*.remote.example.com" # TODO: This needs to exactly match the hostname in the upstream SSL certificate
-      #         trusted_ca:
-      #           filename: /etc/ssl/certs/ca-certificates.crt
     - name: "default"
       match: {}
       transport_socket:
         name: envoy.transport_sockets.raw_buffer
     # NOTE: Uncomment if supporting HTTP/2 as well as HTTPS/1.1
     # If the upstream server does not support HTTP/2 then this will throw a 503
-    # http2_protocol_options: {}
+    ${OPSANI_ENVOY_HTTP2_PROTOCOL_OPTIONS}
     load_assignment:
       cluster_name: opsani_proxied_container
       endpoints:
@@ -115,8 +146,10 @@ static_resources:
             metadata:
               filter_metadata:
                 envoy.transport_socket_match:
-                  # NOTE: This metadata is utilized in the "Enable TLS" stanza above
+                  # NOTE: This metadata is utilized in the `transport_socket_matches` stanza above
                   OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED: ${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_ENABLED}
+                  OPSANI_ENVOY_PROXIED_CONTAINER_TLS_VALIDATION: ${OPSANI_ENVOY_PROXIED_CONTAINER_TLS_VALIDATION}
+                  OPSANI_ENVOY_PROXIED_CONTAINER_SNI_ENABLED: ${OPSANI_ENVOY_PROXIED_CONTAINER_SNI_ENABLED}
 
 # Avoid warnings about `global_downstream_max_connections`
 layered_runtime:
