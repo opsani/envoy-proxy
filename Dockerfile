@@ -6,6 +6,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Add placeholder TLS certificate assets
+COPY certificate_chain.pem private_key.pem /etc/
+
 # NOTE: The entrypoint.sh interpolates env vars and outputs /etc/envoy.yaml
 COPY envoy.yaml.tmpl /tmpl/envoy.yaml.tmpl
 COPY entrypoint.sh /

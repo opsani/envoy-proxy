@@ -15,16 +15,54 @@ static_resources:
         port_value: ${OPSANI_ENVOY_PROXY_SERVICE_PORT} # OPSANI_ENVOY_PROXY_SERVICE_PORT
     listener_filters:
     - name: envoy.filters.listener.tls_inspector
-      # typed_config: {}
     - name: envoy.filters.listener.http_inspector
 
     filter_chains:
     # Match on HTTP ingress traffic
     - filter_chain_match:
-        # transport_protocol: raw_buffer
         application_protocols:
         - "http/1.1"
         transport_protocol: raw_buffer # NOTE: Matches non-TLS requests
+      filters:
+      - name: envoy.filters.network.http_connection_manager
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
+          stat_prefix: ingress_http
+          use_remote_address: true
+          route_config:
+            virtual_hosts:
+            - name: default
+              domains: "*"
+              routes:
+              - match: { prefix: "/" }
+                route: { cluster: opsani_proxied_container }
+          access_log:
+          - name: envoy.access_loggers.file
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+              path: "/dev/stdout"
+          http_filters:
+          - name: envoy.filters.http.health_check
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.filters.http.health_check.v3.HealthCheck
+              pass_through_mode: true
+          - name: envoy.filters.http.grpc_web
+          - name: envoy.filters.http.router
+
+    # Match on HTTPS and HTTP/2 ingress traffic
+    - filter_chain_match:
+        application_protocols:
+        - "http/1.1"
+        - "h2" # Match HTTP/2 traffic
+        transport_protocol: tls
+      transport_socket:
+        name: envoy.transport_sockets.tls
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext
+          common_tls_context:
+            tls_certificates:
+            - certificate_chain: { filename: "/etc/certificate_chain.pem" }
+              private_key: { filename: "/etc/private_key.pem" }
       filters:
       - name: envoy.filters.network.http_connection_manager
         typed_config:
