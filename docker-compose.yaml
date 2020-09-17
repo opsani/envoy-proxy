@@ -9,14 +9,14 @@ services:
     ports:
     - 8280:80
     - 8643:443
-  envoy:
-    build: .
-    depends_on:
-      - nginx
-    ports:
+    # Envoy ports
     - 8281:8281
     - 9901:9901
+  envoy:
+    build: .
+    network_mode: service:nginx
+    depends_on:
+      - nginx
     environment:
-      OPSANI_ENVOY_PROXIED_CONTAINER_ADDR: nginx
       OPSANI_ENVOY_PROXY_SERVICE_PORT: 8281
       OPSANI_ENVOY_PROXIED_CONTAINER_PORT: 80 # NOTE: Must be the internal port!
