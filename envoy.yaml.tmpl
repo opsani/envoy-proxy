@@ -92,7 +92,7 @@ static_resources:
   clusters:
   - name: opsani_proxied_container
     connect_timeout: 0.5s
-    type: LOGICAL_DNS
+    # type: STATIC # or LOGICAL_DNS
     transport_socket_matches:
     - name: "Enable TLS"
       match:
