@@ -30,6 +30,15 @@ When running in TLS mode, the following assets must be mounted into the containe
 | `/etc/certificate_chain.pem` | A complete certificate chain in PEM format for negotiating TLS with the client. |
 | `/etc/private_key.pem` | The private key in PEM format for accessing the certificate in order to present it to clients.
 
+### Base Image
+
+The Envoy base image can be overridden via the `ENVOY_BASE_IMAGE` Docker
+build argument:
+
+```console
+docker build --build-arg ENVOY_BASE_IMAGE=other-envoy:latest .
+```
+
 ## Testing
 
 There is a Docker Compose configuration available that runs Nginx and the Envoy Proxy in a configuration that approximates

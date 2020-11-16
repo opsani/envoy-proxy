@@ -1,4 +1,5 @@
-FROM envoyproxy/envoy:v1.14-latest
+ARG ENVOY_BASE_IMAGE=envoyproxy/envoy:v1.14-latest
+FROM $ENVOY_BASE_IMAGE
 
 # gettext-base contains envsubst used in the entrypoint
 RUN apt-get update && \
