@@ -1,17 +1,21 @@
 # Opsani Envoy Sidecar
 
-This repository contains the reference configuration for [Envoy Proxy]() instances
-injected into services integrating with Opsani for cloud infrastructure
-optimization.
+This repository contains the reference configuration for [Envoy
+Proxy](https://www.envoyproxy.io/) instances injected into services integrating
+with Opsani for cloud infrastructure optimization.
 
 The sidecar is capable of generating the basic set of metrics necessary to
 optimize an arbitrary web service orchestrated by Kubernetes.
 
+The container entrypoint defines a `base-id` value of `31337` to avoid conflicts
+when multiple copies of Envoy are running in the same host.
+
 ## Configuration
 
-The container is configured using a set of environment variables. Required values
-are denoted with **bold** names. These values are interpolated into the `envoy.yaml.tmpl` configuration
-template via the `entrypoint.sh` script run by the container.
+The container is configured using a set of environment variables. Required
+values are denoted with **bold** names. These values are interpolated into the
+`envoy.yaml.tmpl` configuration template via the `entrypoint.sh` script run by
+the container.
 
 | Name | Description | Default |
 |------|-------------|---------|
@@ -23,7 +27,8 @@ template via the `entrypoint.sh` script run by the container.
 
 ### TLS Configuration
 
-When running in TLS mode, the following assets must be mounted into the container:
+When running in TLS mode, the following assets must be mounted into the
+container:
 
 | Path | Description |
 |------|-------------|
@@ -32,8 +37,8 @@ When running in TLS mode, the following assets must be mounted into the containe
 
 ### Base Image
 
-The Envoy base image can be overridden via the `ENVOY_BASE_IMAGE` Docker
-build argument:
+The Envoy base image can be overridden via the `ENVOY_BASE_IMAGE` Docker build
+argument:
 
 ```console
 docker build --build-arg ENVOY_BASE_IMAGE=other-envoy:latest .
@@ -41,8 +46,9 @@ docker build --build-arg ENVOY_BASE_IMAGE=other-envoy:latest .
 
 ## Testing
 
-There is a Docker Compose configuration available that runs Nginx and the Envoy Proxy in a configuration that approximates
-the environment of running in a sidecar deployment.
+There is a Docker Compose configuration available that runs Nginx and the Envoy
+Proxy in a configuration that approximates the environment of running in a
+sidecar deployment.
 
 The configuration can be tested via curl:
 
@@ -75,4 +81,5 @@ Bonus cases:
 - Assign default ports with low collision likelihood.
 - Enable SNI configuration for upstream TLS.
 - Enable support for TLS validation context when proxying a TLS upstream.
-- Enable support for upstream HTTP/2 via `OPSANI_ENVOY_PROXIED_CONTAINER_HTTP2_ENABLED`.
+- Enable support for upstream HTTP/2 via
+  `OPSANI_ENVOY_PROXIED_CONTAINER_HTTP2_ENABLED`.
