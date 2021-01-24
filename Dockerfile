@@ -19,4 +19,4 @@ ENTRYPOINT ["/entrypoint.sh"]
 # By default, Envoy does a slow graceful shutdown
 STOPSIGNAL SIGTERM
 
-CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy.yaml"]
+CMD ["/usr/local/bin/envoy", "-c", "/etc/envoy.yaml", "--base-id", "31337"]
