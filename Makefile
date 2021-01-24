@@ -1,4 +1,4 @@
-IMAGE_NAME = "opsani/envoy-proxy:latest"
+IMAGE_NAME ?= "opsani/envoy-proxy:latest"
 
 .PHONY: build
 build:
