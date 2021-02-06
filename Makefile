@@ -1,4 +1,5 @@
-IMAGE_NAME ?= "opsani/envoy-proxy:latest"
+VERSION ?= "latest"
+IMAGE_NAME ?= "opsani/envoy-proxy:${VERSION}"
 
 .PHONY: build
 build:
